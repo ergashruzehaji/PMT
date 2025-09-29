@@ -1,0 +1,8 @@
+# Requirements for the FastAPI server
+fastapi==0.104.1
+uvicorn==0.24.0
+pydantic==2.5.0
+
+# Existing requirements for your maintenance tracker
+gspread==5.12.0
+oauth2client==4.1.3
