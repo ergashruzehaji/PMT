@@ -1,5 +1,6 @@
 """
-Main entry point for Railway deployment
+Main entry point for Railway deployment - Google Sheets Integration
+Uses pursuit.org Google Sheets setup with Railway
 """
 
 from api_server import app
