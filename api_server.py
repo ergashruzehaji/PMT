@@ -80,23 +80,44 @@ def initialize_tracker():
         google_creds_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
         spreadsheet_name = os.getenv('SPREADSHEET_NAME', 'Property Management Tracker')
         
+        print(f"🔍 Initializing tracker...")
+        print(f"📊 Spreadsheet name: {spreadsheet_name}")
+        print(f"🔑 Google credentials available: {bool(google_creds_json)}")
+        
         if google_creds_json:
-            # Parse JSON from environment variable
-            import tempfile
-            creds_dict = json.loads(google_creds_json)
+            print(f"📋 Credentials length: {len(google_creds_json)} characters")
             
-            # Create temporary credentials file
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
-                json.dump(creds_dict, temp_file)
-                temp_creds_path = temp_file.name
-            
-            tracker = PropertyMaintenanceTracker(temp_creds_path, spreadsheet_name)
-            
-            # Clean up temporary file
-            os.unlink(temp_creds_path)
-            
-            return tracker
+            try:
+                # Parse JSON from environment variable
+                import tempfile
+                creds_dict = json.loads(google_creds_json)
+                print(f"✅ JSON parsed successfully, type: {creds_dict.get('type', 'unknown')}")
+                
+                # Create temporary credentials file
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
+                    json.dump(creds_dict, temp_file)
+                    temp_creds_path = temp_file.name
+                
+                print(f"📁 Temp credentials file created: {temp_creds_path}")
+                
+                # Import here to catch import errors
+                from maintenance_tracker import PropertyMaintenanceTracker
+                tracker = PropertyMaintenanceTracker(temp_creds_path, spreadsheet_name)
+                print("✅ Tracker initialized successfully with environment credentials")
+                
+                # Clean up temporary file
+                os.unlink(temp_creds_path)
+                
+                return tracker
+                
+            except json.JSONDecodeError as e:
+                print(f"❌ JSON decode error: {e}")
+                return None
+            except Exception as e:
+                print(f"❌ Error initializing with environment credentials: {e}")
+                return None
         else:
+            print("🔄 No environment credentials, trying local file...")
             # Fall back to local credentials file
             local_creds_path = '/Users/eruzehaji/Desktop/PMT/credentials.json'
             if os.path.exists(local_creds_path):
