@@ -50,6 +50,28 @@ class EmailNotification(BaseModel):
     property_name: str
     action: str = "added"
 
+# Mock data for when Google Sheets is not available
+mock_tasks = [
+    {
+        "property_name": "Demo Property", 
+        "task_description": "Check HVAC system", 
+        "due_date": "2025-10-15", 
+        "priority": "High",
+        "status": "Pending",
+        "estimated_cost": 150.0,
+        "created_date": "2025-09-30"
+    },
+    {
+        "property_name": "Demo Property", 
+        "task_description": "Inspect plumbing", 
+        "due_date": "2025-10-20", 
+        "priority": "Medium",
+        "status": "Pending", 
+        "estimated_cost": 200.0,
+        "created_date": "2025-09-30"
+    }
+]
+
 # Initialize the tracker (you'll need to handle this per user in production)
 def initialize_tracker():
     """Initialize tracker with environment variables or local credentials"""
@@ -101,7 +123,18 @@ async def health_check():
 async def create_task(task: TaskCreate):
     """Create a new maintenance task"""
     if not tracker:
-        raise HTTPException(status_code=500, detail="Tracker not initialized")
+        # Use mock data when tracker is not available
+        new_task = {
+            "property_name": task.property_name,
+            "task_description": task.task_description,
+            "due_date": task.due_date,
+            "priority": task.priority,
+            "status": "Pending",
+            "estimated_cost": 100.0,
+            "created_date": "2025-09-30"
+        }
+        mock_tasks.append(new_task)
+        return {"success": True, "message": "Task added successfully (demo mode)"}
     
     try:
         result = tracker.add_maintenance_task(
@@ -118,7 +151,8 @@ async def create_task(task: TaskCreate):
 async def get_all_tasks():
     """Get all tasks with their status"""
     if not tracker:
-        raise HTTPException(status_code=500, detail="Tracker not initialized")
+        # Return mock data when tracker is not available
+        return {"success": True, "tasks": mock_tasks}
     
     try:
         # Get all tasks from the sheet
@@ -281,7 +315,24 @@ async def send_email_notification(notification: EmailNotification):
 async def get_dashboard_stats():
     """Get dashboard statistics for React frontend"""
     if not tracker:
-        raise HTTPException(status_code=500, detail="Tracker not initialized")
+        # Return mock stats when tracker is not available
+        completed_tasks = [task for task in mock_tasks if task.get('status') == 'Completed']
+        pending_tasks = [task for task in mock_tasks if task.get('status') == 'Pending']
+        
+        preventive_cost = sum(float(task.get('estimated_cost', 0)) for task in completed_tasks)
+        emergency_cost_averted = preventive_cost * 6  # 6x multiplier
+        
+        stats = {
+            "total_tasks": len(mock_tasks),
+            "pending": len(pending_tasks),
+            "overdue": 0,  # No overdue logic in mock data
+            "completed": len(completed_tasks),
+            "preventive_cost": preventive_cost,
+            "emergency_cost_averted": emergency_cost_averted,
+            "net_savings": emergency_cost_averted - preventive_cost
+        }
+        
+        return {"success": True, "stats": stats}
     
     try:
         all_tasks = tracker.tasks_sheet.get_all_records()

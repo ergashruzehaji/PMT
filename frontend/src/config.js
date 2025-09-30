@@ -11,5 +11,5 @@ const POSSIBLE_URLS = [
 const DEV_URL = 'http://localhost:8000';
 
 // Export the base URL - you can manually set this to your exact Railway URL
-export const API_BASE_URL = 'https://pmt-production.up.railway.app/api';
+export const API_BASE_URL = 'https://web-production-641c2.up.railway.app/api';
 
