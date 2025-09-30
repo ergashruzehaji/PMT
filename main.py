@@ -1,9 +1,9 @@
 """
-Main entry point for Railway deployment - Google Sheets Integration
-Uses pursuit.org Google Sheets setup with Railway
+Main entry point for Railway deployment - Debug Mode
+Temporarily using debug API to check environment variables
 """
 
-from api_server import app
+from debug_api import app
 
 if __name__ == "__main__":
     import uvicorn
