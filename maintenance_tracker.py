@@ -28,7 +28,13 @@ class PropertyMaintenanceTracker:
         # Authorize and open the spreadsheet
         gc = gspread.authorize(credentials)
         self.spreadsheet = gc.open(spreadsheet_name)
-        self.tasks_sheet = self.spreadsheet.worksheet("Maintenance Tasks")  # Adjust sheet name as needed
+        
+        # Try to get the worksheet - first try "Maintenance Tasks", then fall back to first sheet
+        try:
+            self.tasks_sheet = self.spreadsheet.worksheet("Maintenance Tasks")
+        except:
+            # Use the first worksheet (usually "Sheet1")
+            self.tasks_sheet = self.spreadsheet.sheet1
     
     def add_maintenance_task(self, property_name, task_description, 
   due_date, priority="Medium"):
