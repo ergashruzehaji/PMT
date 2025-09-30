@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "property-maintenance-tracker",
+  "private_key_id": "21e309773c28ca05e96ef223cabc40f70c5f91a0",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQClJfVp23VWOJ7G\n0joKcetO/ulzY5aBiZqwXEvwpm2yboF6w4WBc7ZE6yNSh8z3HL6KdoXNLIn9W/+s\nBqYvyJym1j+jw3TbLfBKr93M7IkKOvN4ZpXPnHwY7t3kkfcr3guqaptf+C1GU+Vr\nWodqWqancayYD7nnmed2c2sWhcS6sStnXoHe1TEa++y7YpdKDTR80wsltGoy609w\nj3ZnxHR27nGhDrAi50Zs0uJJV/wJBSU1x6BD4rtpAPcyK0IlbOccag/pH/HWerdj\nu3ITwBSCJwZLHiY9fSba8i06kBUFJE4E5ENONurXBNrcQWHK72ift78ThBOKmkEl\noueXe+d1AgMBAAECggEAKfoWAQwpLPtDUGILIrCGERQ2HoBHtzFUwlMTcl27MElq\nW9vqyVayE5544fdmn8EMpYEuzVHu2RlTSVR/VVH2j2mRz3xU7YkltLYy+G1+/7yw\nOgBJP/YUjPnaKMj5PIs6B90FFUWtrFySydC+7seP6Ku6JQSKSlYSQUdhBt6FfLY3\nEmXudxY5hmdUjkYNgkLKE0wk7zR0L0rAx0UHEHxVToVNg2dSFmrw8i7jviSmxEsi\nEcJr0fXxlx4eF60dLh7n/GfXJsYIB84geQbqzKl+3kKb3HD7t1PqOv0e3Sfc5Hkz\nqxUWOCQFW8/LLWZTCILF9JZNHK2gFRzzqO38LI7r2QKBgQDZj/Ml5tclvAovdxIG\nHaCIwNaWDlfDsIMzXXf1oDiq94xx1TzhClYJS0Lole1rwGn7JY6gN14ADSfHJhfc\nxYuugh2+PjpXNwXz+4PeP5TAavFsS3KABXcQ8ckjM6phXvdESMnBT0mKm0VORIeo\neik1ISzGXlJ710U++6tc0R/FNwKBgQDCU2SVhYVdlHkltrxE8YefAh9O9TlAgCYG\ntnTfsx2py7DeAaf8MI5rvYTxO4o1KuqsN28p2A5IRFcAkDDzatIJMAvnOCwJ2+Fx\nBFWj0WYCvHwbqF4J3DC5Ir0gnRfFGhxQwuJ0wq5YF0cUZYqReAbsiOWd1lDW4eGV\nPMhoKGQOswKBgQCykAgzmnQI333ImUSsylJBC2zT+e+kiFIWrWdQrPD1uXmG0EpI\nNbCJrkC7HpqfrmwNmjSmYOsAxctZE3XQWD6duuNoijBd9qYnKs5/cdXH275McNwI\nIPQpbxjzkGsNweDWJZuZ0lZ8sZW/eFWTPLhnh9P09+NhCz0lRW/PHUCjHwKBgG2b\nJd+kOQ4IYbCg+l4UsX9BbjFV5Z346fndTdyjJbcQ2cjOvFZleN9SPTrnb1P/ye+r\nMLs0TxH54ezCZ6nUdXWTMROQvl4tNGJPpJJK2LPwZjwfYjNDjAPQkUZk9PRKfvAa\njCp5aGbtcj0R7O+R+K3PpVu6d0xMibVoXE1Lguw7AoGAdGDkgDYHSW9Op+BlwsXp\nM5IM5QKbK5hmdrPeyg7nWeFFZVtGmo7l7ycUoa4pxtKFWsL02P1/hO295x7onfEn\n2/ULzNC+4QMdCDQ4fJv/Oe2Y+qWjfZQkPqAhEOMGHoYeuZYjU8drOztVBeM86jGn\ntOgHBXV4RUmy5+FcPApINbc=\n-----END PRIVATE KEY-----\n",
+  "client_email": "property-maintenance-service@property-maintenance-tracker.iam.gserviceaccount.com",
+  "client_id": "112398204591218182671",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/property-maintenance-service%40property-maintenance-tracker.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

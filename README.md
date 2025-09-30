@@ -136,4 +136,4 @@ For questions or issues:
 3. Verify credentials file placement
 4. Check server logs for errors
 
-Built with ❤️ for property managers who want to prevent expensive emergency repairs.
+Built with ❤️ for property managers who want to prevent expensive emergency repairs.# Force Railway redeploy Tue Sep 30 09:23:14 EDT 2025
