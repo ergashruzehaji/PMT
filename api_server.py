@@ -3,8 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
 import uvicorn
-from maintenance_tracker import PropertyMaintenanceTracker
 import os
+import json
+from maintenance_tracker import PropertyMaintenanceTracker
 
 # Initialize FastAPI app
 app = FastAPI(title="Property Maintenance Tracker API", version="1.0.0")
@@ -50,14 +51,42 @@ class EmailNotification(BaseModel):
     action: str = "added"
 
 # Initialize the tracker (you'll need to handle this per user in production)
-try:
-    tracker = PropertyMaintenanceTracker(
-        '/Users/eruzehaji/Desktop/PMT/credentials.json', 
-        'Property Management Tracker'
-    )
-except Exception as e:
-    print(f"Warning: Could not initialize tracker: {e}")
-    tracker = None
+def initialize_tracker():
+    """Initialize tracker with environment variables or local credentials"""
+    try:
+        # Try to get credentials from environment variable (for Railway/Heroku)
+        google_creds_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
+        spreadsheet_name = os.getenv('SPREADSHEET_NAME', 'Property Management Tracker')
+        
+        if google_creds_json:
+            # Parse JSON from environment variable
+            import tempfile
+            creds_dict = json.loads(google_creds_json)
+            
+            # Create temporary credentials file
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
+                json.dump(creds_dict, temp_file)
+                temp_creds_path = temp_file.name
+            
+            tracker = PropertyMaintenanceTracker(temp_creds_path, spreadsheet_name)
+            
+            # Clean up temporary file
+            os.unlink(temp_creds_path)
+            
+            return tracker
+        else:
+            # Fall back to local credentials file
+            local_creds_path = '/Users/eruzehaji/Desktop/PMT/credentials.json'
+            if os.path.exists(local_creds_path):
+                return PropertyMaintenanceTracker(local_creds_path, spreadsheet_name)
+            else:
+                return None
+                
+    except Exception as e:
+        print(f"Warning: Could not initialize tracker: {e}")
+        return None
+
+tracker = initialize_tracker()
 
 @app.get("/")
 async def root():
