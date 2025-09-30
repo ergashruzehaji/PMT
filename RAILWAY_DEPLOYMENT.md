@@ -1,5 +1,13 @@
 # 🚀 Railway Deployment Guide
 
+## Project Structure
+
+This repository contains:
+- **Backend API** (Python FastAPI) - Root directory
+- **Frontend** (React) - `frontend/` directory
+
+Railway will automatically deploy the Python API from the root directory.
+
 ## Quick Deploy to Railway
 
 ### Step 1: Deploy from GitHub

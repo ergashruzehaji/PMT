@@ -15,8 +15,11 @@ A full-stack property maintenance tracking system with Google Sheets integration
 
 - `maintenance_tracker.py` - Core Python backend logic
 - `api_server.py` - FastAPI REST API wrapper
-- `maintenance_tracker_app.jsx` - React frontend
-- `requirements.txt` - Python dependencies
+- `frontend/maintenance_tracker_app.jsx` - React frontend component
+- `frontend/package.json` - Node.js dependencies for frontend
+- `requirements.txt` - Python dependencies for backend
+- `nixpacks.toml` - Railway deployment configuration
+- `runtime.txt` - Python runtime specification
 
 ## 🛠️ Local Setup
 
