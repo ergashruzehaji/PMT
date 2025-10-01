@@ -102,13 +102,83 @@ class PropertyMaintenanceTracker:
             return {"success": False, "message": f"Error adding task: {str(e)}"}
     
     def get_all_tasks(self):
-        """Get all tasks in a standardized format"""
+        """Get all tasks in a standardized format compatible with React frontend"""
         try:
             all_records = self.tasks_sheet.get_all_records()
-            return all_records
+            
+            # Normalize field names for React app compatibility
+            normalized_tasks = []
+            for i, record in enumerate(all_records, start=2):  # Start at 2 because header is row 1
+                normalized_task = {
+                    # Primary format for React app
+                    "id": f"task_{i}",
+                    "row_number": i,
+                    "property_name": record.get('Property Address', ''),
+                    "property_address": record.get('Property Address', ''),
+                    "task_description": record.get('Task Description', ''),
+                    "task_name": record.get('Task Description', ''),
+                    "category": record.get('Category', 'General'),
+                    "priority": record.get('Priority', 'Medium'),
+                    "status": record.get('Status', 'Pending'),
+                    "due_date": self._convert_date_format(record.get('Due Date', '')),
+                    "completed_date": self._convert_date_format(record.get('Completed Date', '')),
+                    "estimated_cost": self._convert_to_float(record.get('Estimated Cost', 0)),
+                    "emergency_cost": self._convert_to_float(record.get('Emergency Cost', 0)),
+                    "emergency_cost_if_delayed": self._convert_to_float(record.get('Emergency Cost', 0)),
+                    "notes": record.get('Notes', ''),
+                    "description": record.get('Notes', ''),
+                    "reporter_email": record.get('Reporter Email', ''),
+                    "created_date": record.get('Date Created', ''),
+                    
+                    # Legacy format for backward compatibility
+                    "Property": record.get('Property Address', ''),
+                    "Property Address": record.get('Property Address', ''),
+                    "Task Description": record.get('Task Description', ''),
+                    "Category": record.get('Category', 'General'),
+                    "Priority": record.get('Priority', 'Medium'),
+                    "Status": record.get('Status', 'Pending'),
+                    "Due Date": record.get('Due Date', ''),
+                    "Completed Date": record.get('Completed Date', ''),
+                    "Estimated Cost": self._convert_to_float(record.get('Estimated Cost', 0)),
+                    "Emergency Cost": self._convert_to_float(record.get('Emergency Cost', 0)),
+                    "Notes": record.get('Notes', ''),
+                    "Reporter Email": record.get('Reporter Email', ''),
+                    "Date Created": record.get('Date Created', ''),
+                }
+                normalized_tasks.append(normalized_task)
+            
+            return normalized_tasks
         except Exception as e:
             print(f"Error getting tasks: {e}")
             return []
+    
+    def _convert_date_format(self, date_str):
+        """Convert MM-DD-YYYY to YYYY-MM-DD for React frontend"""
+        if not date_str:
+            return ''
+        try:
+            from datetime import datetime
+            # Try MM-DD-YYYY format first
+            date_obj = datetime.strptime(date_str, '%m-%d-%Y')
+            return date_obj.strftime('%Y-%m-%d')
+        except ValueError:
+            # If already in YYYY-MM-DD format, return as is
+            try:
+                datetime.strptime(date_str, '%Y-%m-%d')
+                return date_str
+            except ValueError:
+                return date_str  # Return original if can't parse
+    
+    def _convert_to_float(self, value):
+        """Convert string/int to float safely"""
+        if isinstance(value, (int, float)):
+            return float(value)
+        if isinstance(value, str):
+            try:
+                return float(value.replace('$', '').replace(',', ''))
+            except (ValueError, AttributeError):
+                return 0.0
+        return 0.0
     
     def mark_task_complete(self, row_number):
         """Mark a task as complete by row number"""
@@ -385,6 +455,106 @@ class PropertyMaintenanceTracker:
                 }
         
         return {"message": "No emergency cost data available yet"}
+
+    def delete_task(self, row_number):
+        """Delete a task by row number"""
+        try:
+            self.sheet.delete_rows(row_number)
+            return {"success": True, "message": f"Task in row {row_number} deleted successfully"}
+        except Exception as e:
+            return {"success": False, "message": f"Failed to delete task: {str(e)}"}
+
+    def update_task_status(self, row_number, status, completed_date=None):
+        """Update task status and completion date"""
+        try:
+            # Update status column (Column E)
+            self.sheet.update(f'E{row_number}', status)
+            
+            # If marking as completed and no completed_date provided, use today's date
+            if status.lower() == 'completed' and not completed_date:
+                from datetime import datetime
+                completed_date = datetime.now().strftime('%m-%d-%Y')
+            
+            # Update completed date column (Column F) if provided
+            if completed_date:
+                self.sheet.update(f'F{row_number}', completed_date)
+            
+            return {"success": True, "message": f"Task status updated to {status}"}
+        except Exception as e:
+            return {"success": False, "message": f"Failed to update task: {str(e)}"}
+
+    def get_dashboard_stats(self):
+        """Get comprehensive dashboard statistics"""
+        try:
+            all_tasks = self.get_all_tasks()
+            
+            total_tasks = len(all_tasks)
+            pending_tasks = len([task for task in all_tasks if task.get('Status', '').lower() == 'pending'])
+            completed_tasks = len([task for task in all_tasks if task.get('Status', '').lower() == 'completed'])
+            
+            # Calculate overdue tasks
+            from datetime import datetime
+            today = datetime.now()
+            overdue_count = 0
+            
+            for task in all_tasks:
+                if task.get('Status', '').lower() != 'completed':
+                    due_date_str = task.get('Due Date', '')
+                    if due_date_str:
+                        try:
+                            # Handle MM-DD-YYYY format
+                            due_date = datetime.strptime(due_date_str, '%m-%d-%Y')
+                            if due_date < today:
+                                overdue_count += 1
+                        except ValueError:
+                            # Try other date formats if needed
+                            try:
+                                due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
+                                if due_date < today:
+                                    overdue_count += 1
+                            except ValueError:
+                                pass
+            
+            # Calculate costs
+            preventive_cost = 0
+            emergency_cost_averted = 0
+            
+            for task in all_tasks:
+                estimated_cost = task.get('Estimated Cost', 0)
+                if isinstance(estimated_cost, str):
+                    try:
+                        estimated_cost = float(estimated_cost)
+                    except (ValueError, TypeError):
+                        estimated_cost = 0
+                
+                if task.get('Status', '').lower() == 'completed':
+                    preventive_cost += estimated_cost
+                    # Assume 6x cost multiplier for emergency repairs
+                    emergency_cost_averted += estimated_cost * 6
+            
+            net_savings = emergency_cost_averted - preventive_cost
+            
+            return {
+                "total_tasks": total_tasks,
+                "pending": pending_tasks,
+                "overdue": overdue_count,
+                "completed": completed_tasks,
+                "preventive_cost": preventive_cost,
+                "emergency_cost_averted": emergency_cost_averted,
+                "net_savings": net_savings
+            }
+            
+        except Exception as e:
+            print(f"Error calculating dashboard stats: {e}")
+            return {
+                "total_tasks": 0,
+                "pending": 0,
+                "overdue": 0,
+                "completed": 0,
+                "preventive_cost": 0,
+                "emergency_cost_averted": 0,
+                "net_savings": 0
+            }
 
 # Example usage
 if __name__ == "__main__":

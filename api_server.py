@@ -331,6 +331,33 @@ async def mark_task_complete_by_description(task_description: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.delete("/api/tasks/{task_id}")
+async def delete_task(task_id: str):
+    """Delete a task by ID/row number"""
+    if not tracker:
+        # Delete from mock data
+        global mock_tasks
+        for i, task in enumerate(mock_tasks):
+            if str(task.get("id", "")) == str(task_id):
+                deleted_task = mock_tasks.pop(i)
+                return {"success": True, "message": f"Task deleted successfully (demo mode)"}
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    try:
+        # Extract row number from task_id
+        if str(task_id).startswith('task_'):
+            row_number = int(task_id.split('_')[1])
+        else:
+            row_number = int(task_id) + 1  # Add 1 for header row
+        
+        result = tracker.delete_task(row_number)
+        return {"success": result["success"], "message": result["message"]}
+            
+    except (ValueError, IndexError) as e:
+        raise HTTPException(status_code=400, detail=f"Invalid task ID format: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Google Forms integration
 @app.post("/api/forms/response")
 async def handle_form_response(form_response: FormResponse):
