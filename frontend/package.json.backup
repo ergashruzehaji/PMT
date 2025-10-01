@@ -2,15 +2,12 @@
   "name": "property-maintenance-tracker",
   "version": "1.0.0",
   "description": "Full-stack property maintenance tracking with Google Sheets integration",
-  "homepage": "https://ergashruzehaji.github.io/PMT",
   "main": "src/App.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "eject": "react-scripts eject"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
@@ -38,6 +35,6 @@
   "devDependencies": {
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "gh-pages": "^6.1.1"
+    "gh-pages": "^6.3.0"
   }
 }
