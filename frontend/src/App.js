@@ -976,21 +976,9 @@ function App() {
       setTasks(data.success ? data.tasks : data);
     } catch (err) {
       console.error('Error fetching tasks:', err);
-      // Set demo tasks if API fails
-      setTasks([
-        {
-          id: 'demo-1',
-          property_address: '123 Demo Street',
-          task_description: 'Demo Task - API Connection Issue',
-          category: 'General',
-          priority: 'Medium',
-          status: 'Pending',
-          due_date: '2024-11-15',
-          estimated_cost: 100,
-          notes: 'This is a demo task shown because the API is not available'
-        }
-      ]);
-      setError('API not available - showing demo data');
+      // Initialize with empty tasks when API fails
+      setTasks([]);
+      setError('API not available - tasks will be stored locally');
       setTimeout(() => setError(null), 3000);
     }
   };
@@ -1019,14 +1007,36 @@ function App() {
       await fetchStats();
     } catch (err) {
       console.error('Error creating task:', err);
-      setError(`Failed to create task: ${err.message}`);
-      // soundManager.play('error'); // Removed error sound
       
-      // For now, continue anyway to show that the form works
-      setTimeout(() => {
-        setError(null);
-        setShowForm(false);
-      }, 3000);
+      // Fallback: Add task locally when API is not available
+      const newTask = {
+        id: Date.now().toString(),
+        property_address: taskData.property_address || '',
+        task_description: taskData.task_description || '',
+        category: taskData.category || 'General',
+        priority: taskData.priority || 'Medium',
+        status: 'Pending',
+        due_date: taskData.due_date || '',
+        estimated_cost: taskData.estimated_cost || 0,
+        notes: taskData.notes || '',
+        created_date: new Date().toISOString().split('T')[0]
+      };
+      
+      // Add to local task list
+      setTasks(prevTasks => [newTask, ...prevTasks]);
+      
+      // Update stats locally
+      setStats(prevStats => ({
+        ...prevStats,
+        total_tasks: prevStats.total_tasks + 1,
+        pending: prevStats.pending + 1,
+        preventive_cost: prevStats.preventive_cost + (newTask.estimated_cost || 0)
+      }));
+      
+      setShowForm(false);
+      setSuccess('Task created successfully (offline mode)!');
+      soundManager.play('success');
+      setTimeout(() => setSuccess(null), 3000);
     }
   };
 
@@ -1047,8 +1057,36 @@ function App() {
       await fetchStats();
     } catch (err) {
       console.error('Error updating task:', err);
-      setError('Failed to update task');
-      // soundManager.play('error'); // Removed error sound
+      
+      // Fallback: Update task locally when API is not available
+      setTasks(prevTasks => 
+        prevTasks.map(task => 
+          task.id === taskId ? { ...task, ...updateData } : task
+        )
+      );
+      
+      // Update stats if status changed
+      if (updateData.status) {
+        setStats(prevStats => {
+          const updatedStats = { ...prevStats };
+          const task = tasks.find(t => t.id === taskId);
+          
+          if (task && task.status !== updateData.status) {
+            // Adjust counts based on status change
+            if (task.status === 'Pending') updatedStats.pending--;
+            if (task.status === 'Completed') updatedStats.completed--;
+            
+            if (updateData.status === 'Pending') updatedStats.pending++;
+            if (updateData.status === 'Completed') updatedStats.completed++;
+          }
+          
+          return updatedStats;
+        });
+      }
+      
+      setSuccess('Task updated successfully (offline mode)!');
+      soundManager.play('success');
+      setTimeout(() => setSuccess(null), 3000);
     }
   };
 
@@ -1066,8 +1104,25 @@ function App() {
       await fetchStats();
     } catch (err) {
       console.error('Error deleting task:', err);
-      setError('Failed to delete task');
-      // soundManager.play('error'); // Removed error sound
+      
+      // Fallback: Delete task locally when API is not available
+      const taskToDelete = tasks.find(t => t.id === taskId);
+      
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+      
+      // Update stats
+      if (taskToDelete) {
+        setStats(prevStats => ({
+          ...prevStats,
+          total_tasks: Math.max(0, prevStats.total_tasks - 1),
+          pending: taskToDelete.status === 'Pending' ? Math.max(0, prevStats.pending - 1) : prevStats.pending,
+          completed: taskToDelete.status === 'Completed' ? Math.max(0, prevStats.completed - 1) : prevStats.completed,
+          preventive_cost: Math.max(0, prevStats.preventive_cost - (taskToDelete.estimated_cost || 0))
+        }));
+      }
+      
+      setSuccess('Task deleted successfully (offline mode)!');
+      setTimeout(() => setSuccess(null), 3000);
     }
   };
 

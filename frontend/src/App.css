@@ -145,7 +145,7 @@
   min-width: 200px;
   backdrop-filter: blur(20px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-  z-index: 9999; /* Increased z-index to ensure visibility */
+  z-index: 99999; /* Maximum z-index to ensure visibility above all elements */
   animation: fadeIn 0.2s ease-out;
 }
 
