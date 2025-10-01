@@ -17,6 +17,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000", 
         "http://localhost:5173",  # React dev servers
+        "https://pmt-production-a984.up.railway.app",  # Current Railway URL
         "https://pmt-production-8f79794d.up.railway.app",
         "https://web-production-8f79794d.up.railway.app", 
         "https://lavish-presence-production.up.railway.app",
@@ -149,7 +150,8 @@ def initialize_tracker():
                     print(f"❌ Error initializing with local credentials: {e}")
                     return None
             else:
-                print("❌ Local credentials file not found")
+                print("❌ No credentials found (neither environment nor local file)")
+                print("⚠️  App will run with mock data only")
                 return None
                 
     except Exception as e:
