@@ -26,7 +26,8 @@ const Icons = {
   Contact: () => <span className="text-2xl">📞</span>,
   Feedback: () => <span className="text-2xl">💬</span>,
   Law: () => <span className="text-2xl">⚖️</span>,
-  Search: () => <span className="text-2xl">🔍</span>
+  Search: () => <span className="text-2xl">🔍</span>,
+  Sheets: () => <span className="text-2xl">📊</span>
 };
 
 // Sound Manager
@@ -221,6 +222,9 @@ const HamburgerMenu = ({ isOpen, onToggle, onMenuItemClick }) => (
         <div className="menu-item" onClick={() => onMenuItemClick('laws')}>
           <Icons.Law /> Laws & Codes
         </div>
+        <div className="menu-item" onClick={() => onMenuItemClick('sheets')}>
+          <Icons.Sheets /> Sheets
+        </div>
       </div>
     )}
   </div>
@@ -387,6 +391,103 @@ const LawsModal = ({ isOpen, onClose }) => {
                   <p><strong>Address:</strong> {contact.address}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Sheets Modal Component
+const SheetsModal = ({ isOpen, onClose }) => {
+  const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1KdXHj-14FTzbYpFZdA-SZywd_ANWniAgT5lgup_wRTg";
+  const EMBED_URL = `${SPREADSHEET_URL}/edit?usp=sharing&rm=embedded&widget=true&headers=false&chrome=false`;
+
+  if (!isOpen) return null;
+  
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content large-modal sheets-modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2><Icons.Sheets /> Google Sheets - Property Management Tracker</h2>
+          <button className="modal-close" onClick={onClose}><Icons.Close /></button>
+        </div>
+        <div className="modal-body">
+          <div className="sheets-options">
+            <div className="sheets-info">
+              <h3>📊 Access Your Live Google Sheets</h3>
+              <p>View and edit your property maintenance data in real-time. All changes sync automatically with the app.</p>
+            </div>
+            
+            <div className="sheets-actions">
+              <a 
+                href={SPREADSHEET_URL} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn btn-primary"
+                onClick={() => soundManager.play('success')}
+              >
+                <Icons.Sheets /> Open in New Tab
+              </a>
+              <button 
+                className="btn btn-secondary"
+                onClick={() => {
+                  navigator.clipboard.writeText(SPREADSHEET_URL);
+                  soundManager.play('success');
+                  alert('Spreadsheet URL copied to clipboard!');
+                }}
+              >
+                📋 Copy Link
+              </button>
+            </div>
+          </div>
+
+          {/* Embedded Google Sheets */}
+          <div className="sheets-embed">
+            <h4>📋 Live Spreadsheet Preview</h4>
+            <div className="sheets-iframe-container">
+              <iframe
+                src={EMBED_URL}
+                className="sheets-iframe"
+                title="Property Management Tracker Spreadsheet"
+                frameBorder="0"
+                allowFullScreen
+              />
+            </div>
+          </div>
+
+          <div className="sheets-features">
+            <h4>✨ Features</h4>
+            <div className="feature-grid">
+              <div className="feature-item">
+                <span className="feature-icon">🔄</span>
+                <div>
+                  <strong>Real-time Sync</strong>
+                  <p>Changes in sheets update the app instantly</p>
+                </div>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">📱</span>
+                <div>
+                  <strong>Mobile Friendly</strong>
+                  <p>Access from any device, anywhere</p>
+                </div>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">👥</span>
+                <div>
+                  <strong>Team Collaboration</strong>
+                  <p>Share with team members for collaborative editing</p>
+                </div>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">💾</span>
+                <div>
+                  <strong>Auto-Save</strong>
+                  <p>Never lose your data with automatic saving</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1181,6 +1282,10 @@ function App() {
       />
       <LawsModal 
         isOpen={activeModal === 'laws'} 
+        onClose={() => setActiveModal(null)} 
+      />
+      <SheetsModal 
+        isOpen={activeModal === 'sheets'} 
         onClose={() => setActiveModal(null)} 
       />
       <EditTaskModal 

@@ -1030,3 +1030,135 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Sheets Modal Styles */
+.sheets-modal {
+  max-width: 95vw;
+  max-height: 95vh;
+}
+
+.sheets-options {
+  margin-bottom: 2rem;
+}
+
+.sheets-info {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.sheets-info h3 {
+  color: #fbbf24;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.sheets-info p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.sheets-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.sheets-embed {
+  margin-bottom: 2rem;
+}
+
+.sheets-embed h4 {
+  color: #fbbf24;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.sheets-iframe-container {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.sheets-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: white;
+}
+
+.sheets-features h4 {
+  color: #fbbf24;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: 12px;
+  border-left: 4px solid #fbbf24;
+}
+
+.feature-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.feature-item strong {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.feature-item p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Responsive adjustments for Sheets modal */
+@media (max-width: 768px) {
+  .sheets-modal {
+    max-width: 98vw;
+    margin: 1rem;
+  }
+  
+  .sheets-iframe-container {
+    height: 400px;
+  }
+  
+  .sheets-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .sheets-actions .btn {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
