@@ -459,7 +459,7 @@ class PropertyMaintenanceTracker:
     def delete_task(self, row_number):
         """Delete a task by row number"""
         try:
-            self.sheet.delete_rows(row_number)
+            self.tasks_sheet.delete_rows(row_number)
             return {"success": True, "message": f"Task in row {row_number} deleted successfully"}
         except Exception as e:
             return {"success": False, "message": f"Failed to delete task: {str(e)}"}
@@ -468,7 +468,7 @@ class PropertyMaintenanceTracker:
         """Update task status and completion date"""
         try:
             # Update status column (Column E)
-            self.sheet.update(f'E{row_number}', status)
+            self.tasks_sheet.update(f'E{row_number}', status)
             
             # If marking as completed and no completed_date provided, use today's date
             if status.lower() == 'completed' and not completed_date:
@@ -477,7 +477,7 @@ class PropertyMaintenanceTracker:
             
             # Update completed date column (Column F) if provided
             if completed_date:
-                self.sheet.update(f'F{row_number}', completed_date)
+                self.tasks_sheet.update(f'F{row_number}', completed_date)
             
             return {"success": True, "message": f"Task status updated to {status}"}
         except Exception as e:
