@@ -135,22 +135,19 @@
 
 /* Original dropdown positioning but with portal-like z-index */
 .hamburger-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
+  position: fixed;
+  top: 70px;
+  right: 20px;
   background: rgba(15, 23, 42, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   padding: 0.5rem;
-  margin-top: 0.5rem;
   min-width: 200px;
   max-width: 250px;
   backdrop-filter: blur(20px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
   z-index: 999999; /* Very high z-index to escape all containers */
   animation: slideDown 0.2s ease-out;
-  /* Ensure it stays within viewport */
-  transform: translateX(-10px); /* Pull it slightly left from the edge */
 }
 
 .menu-item {

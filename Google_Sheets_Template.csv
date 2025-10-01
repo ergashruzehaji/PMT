@@ -1,0 +1,7 @@
+Property Address,Task Description,Category,Priority,Status,Due Date,Created Date,Completed Date,Estimated Cost,Emergency Priority,Notes
+123 Main St,HVAC Filter Replacement,HVAC,Medium,Pending,2024-11-15,2024-10-01,,75,No,Replace quarterly air filter
+456 Oak Ave,Gutter Cleaning,Exterior,High,Pending,2024-11-20,2024-10-01,,200,No,Clean gutters before winter season
+789 Pine Rd,Kitchen Faucet Repair,Plumbing,High,In Progress,2024-11-10,2024-10-01,,150,Yes,Leaking faucet needs immediate attention
+321 Elm St,Exterior Paint Touch-up,Exterior,Medium,Pending,2024-12-01,2024-10-01,,300,No,Touch up paint on south side
+654 Maple Dr,Electrical Outlet Installation,Electrical,Low,Pending,2024-11-25,2024-10-01,,125,No,Install outlet in garage
+987 Cedar Ln,Window Seal Replacement,Interior,Medium,Completed,2024-10-15,2024-09-28,2024-10-14,85,No,Replaced weatherstripping on windows
