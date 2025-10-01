@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { API_BASE_URL } from './config';
+// import { LanguageProvider, useLanguage, LiveDateTime, LanguageSelector } from './LanguageContext';
 
 // Construction-themed Icons
 const Icons = {
@@ -27,7 +28,9 @@ const Icons = {
   Feedback: () => <span className="text-2xl">💬</span>,
   Law: () => <span className="text-2xl">⚖️</span>,
   Search: () => <span className="text-2xl">🔍</span>,
-  Sheets: () => <span className="text-2xl">📊</span>
+  Sheets: () => <span className="text-2xl">📊</span>,
+  Settings: () => <span className="text-2xl">⚙️</span>,
+  Help: () => <span className="text-2xl">❓</span>
 };
 
 // Sound Manager
@@ -205,28 +208,36 @@ const NotificationBell = ({ onClick, hasNotifications = false }) => (
   </button>
 );
 
-// Hamburger Menu Component
-const HamburgerMenu = ({ isOpen, onToggle, onMenuItemClick }) => (
-  <div className="hamburger-menu">
-    <button className="hamburger-button" onClick={onToggle}>
-      {isOpen ? <Icons.Close /> : <Icons.Menu />}
-    </button>
-    {isOpen && (
-      <div className="hamburger-dropdown">
-        <div className="menu-item" onClick={() => onMenuItemClick('contact')}>
-          <Icons.Contact /> Contact
-        </div>
-        <div className="menu-item" onClick={() => onMenuItemClick('feedback')}>
-          <Icons.Feedback /> Feedback
-        </div>
-        <div className="menu-item" onClick={() => onMenuItemClick('laws')}>
-          <Icons.Law /> Laws & Codes
-        </div>
-        <div className="menu-item" onClick={() => onMenuItemClick('sheets')}>
-          <Icons.Sheets /> Sheets
-        </div>
+// Left Sidebar Component
+const LeftSidebar = ({ onMenuItemClick }) => (
+  <div className="left-sidebar">
+    <div className="sidebar-section">
+      <div className="sidebar-title">
+        <Icons.Menu /> Navigation
       </div>
-    )}
+      <ul className="sidebar-menu">
+        <li className="sidebar-menu-item">
+          <div className="sidebar-menu-link" onClick={() => onMenuItemClick('contact')}>
+            <Icons.Contact /> Contact
+          </div>
+        </li>
+        <li className="sidebar-menu-item">
+          <div className="sidebar-menu-link" onClick={() => onMenuItemClick('feedback')}>
+            <Icons.Feedback /> Feedback
+          </div>
+        </li>
+        <li className="sidebar-menu-item">
+          <div className="sidebar-menu-link" onClick={() => onMenuItemClick('laws')}>
+            <Icons.Law /> Laws & Codes
+          </div>
+        </li>
+        <li className="sidebar-menu-item">
+          <div className="sidebar-menu-link" onClick={() => onMenuItemClick('sheets')}>
+            <Icons.Sheets /> Sheets
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 );
 
@@ -933,7 +944,6 @@ function App() {
     category: '',
     priority: ''
   });
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
 
@@ -1129,7 +1139,6 @@ function App() {
   };
 
   const handleMenuItemClick = (item) => {
-    setMenuOpen(false);
     setActiveModal(item);
   };
 
@@ -1173,11 +1182,6 @@ function App() {
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
-            <HamburgerMenu 
-              isOpen={menuOpen} 
-              onToggle={() => setMenuOpen(!menuOpen)}
-              onMenuItemClick={handleMenuItemClick}
-            />
             <div className="header-title">
               <div className="header-icon">
                 <Icons.HardHat />
@@ -1204,7 +1208,9 @@ function App() {
         </div>
       </header>
 
-      <main className="main-content">
+      <LeftSidebar onMenuItemClick={handleMenuItemClick} />
+
+      <main className="content-area">
         {error && (
           <div className="error fadeIn">
             <strong>⚠️ Error:</strong> {error}
