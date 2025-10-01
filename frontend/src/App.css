@@ -111,6 +111,7 @@
 /* Hamburger Menu */
 .hamburger-menu {
   position: relative;
+  z-index: 10000; /* Ensure hamburger button is always on top */
 }
 
 .hamburger-button {
@@ -122,6 +123,8 @@
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  z-index: 10001;
+  position: relative;
 }
 
 .hamburger-button:hover {
@@ -142,7 +145,7 @@
   min-width: 200px;
   backdrop-filter: blur(20px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
+  z-index: 9999; /* Increased z-index to ensure visibility */
   animation: fadeIn 0.2s ease-out;
 }
 
