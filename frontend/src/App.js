@@ -206,21 +206,13 @@ const NotificationBell = ({ onClick, hasNotifications = false }) => (
 );
 
 // Hamburger Menu Component
-const HamburgerMenu = ({ isOpen, onToggle }) => (
+const HamburgerMenu = ({ isOpen, onToggle, onMenuItemClick }) => (
   <div className="hamburger-menu">
     <button className="hamburger-button" onClick={onToggle}>
       {isOpen ? <Icons.Close /> : <Icons.Menu />}
     </button>
-  </div>
-);
-
-// Separate Dropdown Overlay Component (renders at root level)
-const DropdownOverlay = ({ isOpen, onMenuItemClick, onClose }) => {
-  if (!isOpen) return null;
-  
-  return (
-    <div className="dropdown-overlay" onClick={onClose}>
-      <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
+    {isOpen && (
+      <div className="hamburger-dropdown">
         <div className="menu-item" onClick={() => onMenuItemClick('contact')}>
           <Icons.Contact /> Contact
         </div>
@@ -234,9 +226,11 @@ const DropdownOverlay = ({ isOpen, onMenuItemClick, onClose }) => {
           <Icons.Sheets /> Sheets
         </div>
       </div>
-    </div>
-  );
-};
+    )}
+  </div>
+);
+
+// Remove the separate DropdownOverlay component
 
 // Contact Modal Component
 const ContactModal = ({ isOpen, onClose }) => {
@@ -1176,19 +1170,13 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Dropdown Overlay - renders at root level above everything */}
-      <DropdownOverlay 
-        isOpen={menuOpen}
-        onMenuItemClick={handleMenuItemClick}
-        onClose={() => setMenuOpen(false)}
-      />
-      
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
             <HamburgerMenu 
               isOpen={menuOpen} 
               onToggle={() => setMenuOpen(!menuOpen)}
+              onMenuItemClick={handleMenuItemClick}
             />
             <div className="header-title">
               <div className="header-icon">

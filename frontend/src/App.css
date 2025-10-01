@@ -37,7 +37,7 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border-bottom: 3px solid #fbbf24;
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Allow dropdown to escape header bounds */
 }
 
 .app-header::before {
@@ -133,29 +133,20 @@
   transform: scale(1.05);
 }
 
-/* Dropdown Overlay - Full screen overlay approach */
-.dropdown-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.2);
-  z-index: 100000; /* Above everything */
-  animation: fadeIn 0.2s ease-out;
-}
-
-.dropdown-menu {
+/* Original dropdown positioning but with portal-like z-index */
+.hamburger-dropdown {
   position: absolute;
-  top: 80px;
-  right: 20px;
+  top: 100%;
+  right: 0;
   background: rgba(15, 23, 42, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   padding: 0.5rem;
+  margin-top: 0.5rem;
   min-width: 200px;
   backdrop-filter: blur(20px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  z-index: 999999; /* Very high z-index to escape all containers */
   animation: slideDown 0.2s ease-out;
 }
 
