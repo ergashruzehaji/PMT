@@ -5,10 +5,10 @@ from typing import Optional, List
 import uvicorn
 import os
 import json
-from maintenance_tracker import PropertyMaintenanceTracker
+from maintenance_tracker_v2 import PropertyMaintenanceTracker
 
 # Initialize FastAPI app
-app = FastAPI(title="Property Maintenance Tracker API", version="1.0.0")
+app = FastAPI(title="Property Maintenance Tracker API", version="2.0.0")
 
 # Add CORS middleware to allow React frontend
 app.add_middleware(
@@ -20,11 +20,22 @@ app.add_middleware(
 )
 
 # Pydantic models for API requests/responses
+# Pydantic models for API requests/responses
 class TaskCreate(BaseModel):
     property_name: str
     task_description: str
     due_date: str
     priority: str = "Medium"
+    category: str = "General"
+    estimated_cost: float = 0.0
+    emergency_cost: float = 0.0
+    notes: str = ""
+    reporter_email: str = ""
+
+class TaskUpdate(BaseModel):
+    status: Optional[str] = None
+    completed_date: Optional[str] = None
+    notes: Optional[str] = None
 
 class FormResponse(BaseModel):
     Property: str
@@ -146,25 +157,39 @@ async def create_task(task: TaskCreate):
     if not tracker:
         # Use mock data when tracker is not available
         new_task = {
+            "id": f"task_mock_{len(mock_tasks) + 1}",
+            "property_address": task.property_name,
             "property_name": task.property_name,
             "task_description": task.task_description,
-            "due_date": task.due_date,
+            "task_name": task.task_description,
+            "category": task.category,
             "priority": task.priority,
             "status": "Pending",
-            "estimated_cost": 100.0,
-            "created_date": "2025-09-30"
+            "due_date": task.due_date,
+            "created_date": "2025-09-30",
+            "completed_date": "",
+            "estimated_cost": task.estimated_cost,
+            "emergency_cost": task.emergency_cost,
+            "emergency_cost_if_delayed": task.emergency_cost,
+            "notes": task.notes,
+            "description": task.notes,
+            "reporter_email": task.reporter_email,
+            # Legacy format for compatibility
+            "Property": task.property_name,
+            "Task Description": task.task_description,
+            "Category": task.category,
+            "Priority": task.priority,
+            "Status": "Pending",
+            "Due Date": task.due_date,
+            "Estimated Cost": task.estimated_cost,
+            "Emergency Cost": task.emergency_cost
         }
         mock_tasks.append(new_task)
         return {"success": True, "message": "Task added successfully (demo mode)"}
     
     try:
-        result = tracker.add_maintenance_task(
-            task.property_name, 
-            task.task_description, 
-            task.due_date, 
-            task.priority
-        )
-        return {"success": True, "message": result}
+        result = tracker.add_task_from_api(task.dict())
+        return {"success": result["success"], "message": result["message"]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -176,9 +201,52 @@ async def get_all_tasks():
         return {"success": True, "tasks": mock_tasks}
     
     try:
-        # Get all tasks from the sheet
-        all_tasks = tracker.tasks_sheet.get_all_records()
+        # Get all tasks from the sheet using new standardized format
+        all_tasks = tracker.get_all_tasks()
         return {"success": True, "tasks": all_tasks}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/api/tasks/{task_id}")
+async def update_task(task_id: str, update_data: TaskUpdate):
+    """Update a task status or other fields"""
+    if not tracker:
+        # Update mock data
+        for task in mock_tasks:
+            if str(task.get("id", "")) == str(task_id):
+                if update_data.status:
+                    task["status"] = update_data.status
+                    task["Status"] = update_data.status  # Legacy compatibility
+                if update_data.completed_date:
+                    task["completed_date"] = update_data.completed_date
+                elif update_data.status and update_data.status.lower() == "completed":
+                    from datetime import datetime
+                    task["completed_date"] = datetime.now().strftime('%Y-%m-%d')
+                if update_data.notes:
+                    task["notes"] = update_data.notes
+                    task["description"] = update_data.notes
+                return {"success": True, "message": f"Task {task_id} updated successfully (demo mode)"}
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    try:
+        # Extract row number from task_id
+        if str(task_id).startswith('task_'):
+            row_number = int(task_id.split('_')[1])
+        else:
+            row_number = int(task_id) + 1  # Add 1 for header row
+        
+        if update_data.status:
+            result = tracker.update_task_status(
+                row_number, 
+                update_data.status, 
+                update_data.completed_date
+            )
+            return {"success": result["success"], "message": result["message"]}
+        else:
+            return {"success": False, "message": "No update data provided"}
+            
+    except (ValueError, IndexError) as e:
+        raise HTTPException(status_code=400, detail=f"Invalid task ID format: {e}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -356,28 +424,29 @@ async def get_dashboard_stats():
         return {"success": True, "stats": stats}
     
     try:
-        all_tasks = tracker.tasks_sheet.get_all_records()
-        pending_tasks = tracker.get_pending_tasks()
-        overdue_tasks = tracker.get_overdue_tasks()
-        
-        # Calculate cost savings (similar to React logic)
-        completed_tasks = [task for task in all_tasks if task.get('Status') == 'Completed']
-        preventive_cost = sum(float(task.get('Cost', 0)) for task in completed_tasks if task.get('Cost'))
-        emergency_cost_averted = preventive_cost * 6  # 6x multiplier
-        
-        stats = {
-            "total_tasks": len(all_tasks),
-            "pending": len(pending_tasks),
-            "overdue": len(overdue_tasks),
-            "completed": len(completed_tasks),
-            "preventive_cost": preventive_cost,
-            "emergency_cost_averted": emergency_cost_averted,
-            "net_savings": emergency_cost_averted - preventive_cost
-        }
-        
+        stats = tracker.get_dashboard_stats()
         return {"success": True, "stats": stats}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error getting stats: {e}")
+        # Return basic stats as fallback
+        try:
+            all_tasks = tracker.get_all_tasks()
+            total_tasks = len(all_tasks)
+            pending_tasks = len([task for task in all_tasks if task.get('status', '').lower() == 'pending'])
+            
+            stats = {
+                "total_tasks": total_tasks,
+                "pending": pending_tasks,
+                "overdue": 0,
+                "completed": total_tasks - pending_tasks,
+                "preventive_cost": 0,
+                "emergency_cost_averted": 0,
+                "net_savings": 0
+            }
+            
+            return {"success": True, "stats": stats}
+        except Exception as e2:
+            raise HTTPException(status_code=500, detail=str(e2))
 
 if __name__ == "__main__":
     print("🚀 Starting Property Maintenance Tracker API...")
