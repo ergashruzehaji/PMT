@@ -133,10 +133,22 @@
   transform: scale(1.05);
 }
 
-.hamburger-dropdown {
+/* Dropdown Overlay - Full screen overlay approach */
+.dropdown-overlay {
   position: fixed;
-  top: 80px; /* Position below the header */
-  right: 20px; /* Align with the hamburger button */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 100000; /* Above everything */
+  animation: fadeIn 0.2s ease-out;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 80px;
+  right: 20px;
   background: rgba(15, 23, 42, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
@@ -144,8 +156,7 @@
   min-width: 200px;
   backdrop-filter: blur(20px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-  z-index: 99999; /* Maximum z-index to ensure visibility above all elements */
-  animation: fadeIn 0.2s ease-out;
+  animation: slideDown 0.2s ease-out;
 }
 
 .menu-item {
@@ -916,6 +927,17 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
