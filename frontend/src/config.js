@@ -14,8 +14,6 @@ const POSSIBLE_URLS = [
 // For development, you can also use localhost
 const DEV_URL = 'http://localhost:8000';
 
-// Export the base URL - Use Railway for production, localhost for development
-export const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? RAILWAY_URL  // Use current Railway URL for production
-  : DEV_URL;  // Use localhost for development
+// Export the base URL - Always use Railway URL so you can see your live data
+export const API_BASE_URL = RAILWAY_URL;  // Always use Railway for live data
 
