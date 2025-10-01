@@ -10,6 +10,8 @@ const POSSIBLE_URLS = [
 // For development, you can also use localhost
 const DEV_URL = 'http://localhost:8000';
 
-// Export the base URL - Fixed to not include /api at the end
-export const API_BASE_URL = 'https://web-production-641c2.up.railway.app';
+// Export the base URL - Use Railway for production, localhost for development
+export const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? POSSIBLE_URLS[0]  // Use first Railway URL for production
+  : DEV_URL;  // Use localhost for development
 

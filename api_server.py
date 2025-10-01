@@ -5,15 +5,24 @@ from typing import Optional, List
 import uvicorn
 import os
 import json
-from maintenance_tracker_v2 import PropertyMaintenanceTracker
+import tempfile
+from maintenance_tracker import PropertyMaintenanceTracker
 
 # Initialize FastAPI app
 app = FastAPI(title="Property Maintenance Tracker API", version="2.0.0")
 
-# Add CORS middleware to allow React frontend
+# Add CORS middleware to allow React frontend and Railway
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],  # React dev servers
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://localhost:5173",  # React dev servers
+        "https://pmt-production-8f79794d.up.railway.app",
+        "https://web-production-8f79794d.up.railway.app", 
+        "https://lavish-presence-production.up.railway.app",
+        "https://pmt-production.up.railway.app",
+        "https://*.up.railway.app"  # Allow any Railway subdomain
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -111,8 +120,6 @@ def initialize_tracker():
                 
                 print(f"📁 Temp credentials file created: {temp_creds_path}")
                 
-                # Import here to catch import errors
-                from maintenance_tracker import PropertyMaintenanceTracker
                 tracker = PropertyMaintenanceTracker(temp_creds_path, spreadsheet_name)
                 print("✅ Tracker initialized successfully with environment credentials")
                 
@@ -130,10 +137,19 @@ def initialize_tracker():
         else:
             print("🔄 No environment credentials, trying local file...")
             # Fall back to local credentials file
-            local_creds_path = '/Users/eruzehaji/Desktop/PMT/credentials.json'
+            local_creds_path = os.path.join(os.path.dirname(__file__), 'credentials.json')
+            print(f"📁 Checking local credentials at: {local_creds_path}")
             if os.path.exists(local_creds_path):
-                return PropertyMaintenanceTracker(local_creds_path, spreadsheet_name)
+                print("📄 Local credentials file found, initializing tracker...")
+                try:
+                    tracker = PropertyMaintenanceTracker(local_creds_path, spreadsheet_name)
+                    print("✅ Tracker initialized successfully with local credentials!")
+                    return tracker
+                except Exception as e:
+                    print(f"❌ Error initializing with local credentials: {e}")
+                    return None
             else:
+                print("❌ Local credentials file not found")
                 return None
                 
     except Exception as e:

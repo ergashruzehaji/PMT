@@ -37,24 +37,85 @@ class PropertyMaintenanceTracker:
             self.tasks_sheet = self.spreadsheet.sheet1
     
     def add_maintenance_task(self, property_name, task_description, 
-  due_date, priority="Medium"):
-        """Add a new maintenance task to the tracking sheet"""
+                           due_date, priority="Medium", category="General", 
+                           estimated_cost=0, notes="", reporter_email=""):
+        """Add a new maintenance task to the tracking sheet with proper column mapping"""
+        from datetime import datetime
+        
         # Get the next available row
         tasks = self.tasks_sheet.get_all_values()
         next_row = len(tasks) + 1
         
-        # Add the new task
-        self.tasks_sheet.update_cell(next_row, 1, property_name)
-        self.tasks_sheet.update_cell(next_row, 2, task_description)
-        self.tasks_sheet.update_cell(next_row, 3, due_date)
-        self.tasks_sheet.update_cell(next_row, 4, priority)
-        self.tasks_sheet.update_cell(next_row, 5, "Pending")
+        # Convert due_date to MM-DD-YYYY format if it's in YYYY-MM-DD format
+        if due_date and len(due_date) == 10 and due_date.count('-') == 2:
+            try:
+                # Parse date and convert to MM-DD-YYYY
+                date_obj = datetime.strptime(due_date, '%Y-%m-%d')
+                due_date = "'" + date_obj.strftime('%m-%d-%Y')  # Prefix with ' to force text format
+            except:
+                pass  # Keep original format if parsing fails
+        
+        # Add the new task with proper column mapping:
+        # Column 1: Property Address
+        # Column 2: Task Description  
+        # Column 3: Category
+        # Column 4: Priority
+        # Column 5: Status
+        # Column 6: Due Date
+        # Column 7: Completed Date (empty for new tasks)
+        # Column 8: Estimated Cost
+        # Column 9: Emergency Cost (empty for now)
+        # Column 10: Notes
+        # Column 11: Reporter Email
+        
+        self.tasks_sheet.update_cell(next_row, 1, property_name)        # Property Address
+        self.tasks_sheet.update_cell(next_row, 2, task_description)     # Task Description
+        self.tasks_sheet.update_cell(next_row, 3, category)             # Category
+        self.tasks_sheet.update_cell(next_row, 4, priority)             # Priority
+        self.tasks_sheet.update_cell(next_row, 5, "Pending")            # Status
+        self.tasks_sheet.update_cell(next_row, 6, due_date)             # Due Date
+        # Column 7 (Completed Date) left empty for new tasks
+        self.tasks_sheet.update_cell(next_row, 8, str(estimated_cost))  # Estimated Cost
+        # Column 9 (Emergency Cost) left empty for now
+        self.tasks_sheet.update_cell(next_row, 10, notes)               # Notes
+        self.tasks_sheet.update_cell(next_row, 11, reporter_email)      # Reporter Email
         
         return f"Task added: {task_description} for {property_name}"
     
+    def add_task_from_api(self, task_data):
+        """
+        Add task from API request - handles the full task data from React app
+        """
+        try:
+            result = self.add_maintenance_task(
+                property_name=task_data.get('property_name', ''),
+                task_description=task_data.get('task_description', ''),
+                due_date=task_data.get('due_date', ''),
+                priority=task_data.get('priority', 'Medium'),
+                category=task_data.get('category', 'General'),
+                estimated_cost=task_data.get('estimated_cost', 0),
+                notes=task_data.get('notes', ''),
+                reporter_email=task_data.get('reporter_email', '')
+            )
+            return {"success": True, "message": result}
+        except Exception as e:
+            return {"success": False, "message": f"Error adding task: {str(e)}"}
+    
+    def get_all_tasks(self):
+        """Get all tasks in a standardized format"""
+        try:
+            all_records = self.tasks_sheet.get_all_records()
+            return all_records
+        except Exception as e:
+            print(f"Error getting tasks: {e}")
+            return []
+    
     def mark_task_complete(self, row_number):
         """Mark a task as complete by row number"""
-        self.tasks_sheet.update_cell(row_number, 5, "Completed")
+        from datetime import datetime
+        
+        self.tasks_sheet.update_cell(row_number, 5, "Completed")  # Status column
+        self.tasks_sheet.update_cell(row_number, 7, "'" + datetime.now().strftime('%m-%d-%Y'))  # Completed Date column (MM-DD-YYYY as text)
         return f"Task in row {row_number} marked as complete"
     
     def get_pending_tasks(self):
@@ -112,11 +173,14 @@ class PropertyMaintenanceTracker:
         Mark task complete by description - useful for SMS 'DONE [task]' functionality
         Returns the row number of completed task or None if not found
         """
+        from datetime import datetime
+        
         all_tasks = self.tasks_sheet.get_all_values()
         for i, row in enumerate(all_tasks[1:], start=2):  # Skip header row
             if len(row) >= 5 and task_description.lower() in row[1].lower():
                 if row[4] != "Completed":  # Only update if not already completed
-                    self.tasks_sheet.update_cell(i, 5, "Completed")
+                    self.tasks_sheet.update_cell(i, 5, "Completed")  # Status column
+                    self.tasks_sheet.update_cell(i, 7, "'" + datetime.now().strftime('%m-%d-%Y'))  # Completed Date column (MM-DD-YYYY as text)
                     return i
         return None
     

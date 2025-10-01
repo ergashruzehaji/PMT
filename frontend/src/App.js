@@ -209,37 +209,50 @@ const NotificationBell = ({ onClick, hasNotifications = false }) => (
 );
 
 // Left Sidebar Component
-const LeftSidebar = ({ onMenuItemClick }) => (
-  <div className="left-sidebar">
-    <div className="sidebar-section">
-      <div className="sidebar-title">
-        <Icons.Menu /> Navigation
+const LeftSidebar = ({ onMenuItemClick, isOpen, onClose }) => {
+  return (
+    <>
+      {/* Sidebar Overlay */}
+      {isOpen && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div className={`left-sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        <div className="sidebar-section">
+          <div className="sidebar-title">
+            <Icons.Menu />
+          </div>
+          <ul className="sidebar-menu">
+            <li className="sidebar-menu-item">
+              <div className="sidebar-menu-link" onClick={() => onMenuItemClick('contact')}>
+                <Icons.Contact /> Contact
+              </div>
+            </li>
+            <li className="sidebar-menu-item">
+              <div className="sidebar-menu-link" onClick={() => onMenuItemClick('feedback')}>
+                <Icons.Feedback /> Feedback
+              </div>
+            </li>
+            <li className="sidebar-menu-item">
+              <div className="sidebar-menu-link" onClick={() => onMenuItemClick('laws')}>
+                <Icons.Law /> Laws & Codes
+              </div>
+            </li>
+            <li className="sidebar-menu-item">
+              <div className="sidebar-menu-link" onClick={() => onMenuItemClick('sheets')}>
+                <Icons.Sheets /> Sheets
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-      <ul className="sidebar-menu">
-        <li className="sidebar-menu-item">
-          <div className="sidebar-menu-link" onClick={() => onMenuItemClick('contact')}>
-            <Icons.Contact /> Contact
-          </div>
-        </li>
-        <li className="sidebar-menu-item">
-          <div className="sidebar-menu-link" onClick={() => onMenuItemClick('feedback')}>
-            <Icons.Feedback /> Feedback
-          </div>
-        </li>
-        <li className="sidebar-menu-item">
-          <div className="sidebar-menu-link" onClick={() => onMenuItemClick('laws')}>
-            <Icons.Law /> Laws & Codes
-          </div>
-        </li>
-        <li className="sidebar-menu-item">
-          <div className="sidebar-menu-link" onClick={() => onMenuItemClick('sheets')}>
-            <Icons.Sheets /> Sheets
-          </div>
-        </li>
-      </ul>
-    </div>
-  </div>
-);
+    </>
+  );
+};
 
 // Remove the separate DropdownOverlay component
 
@@ -713,13 +726,14 @@ const TaskItem = ({ task, onUpdate, onDelete, onEdit }) => {
   };
 
   // Use different property name formats for backward compatibility
-  const property = task.property_address || task.property_name || task['Property'] || '';
+  const property = task.property_address || task.property_name || task['Property Address'] || task['Property'] || '';
   const taskName = task.task_description || task.task_name || task['Task Description'] || '';
   const description = task.notes || task.description || task['Notes'] || '';
   const category = task.category || task['Category'] || 'General';
   const priority = task.priority || task['Priority'] || 'Medium';
   const status = task.status || task['Status'] || 'Pending';
   const dueDate = task.due_date || task['Due Date'] || '';
+  const completedDate = task.completed_date || task['Completed Date'] || '';
   const estimatedCost = task.estimated_cost || task['Estimated Cost'] || 0;
   const emergencyCost = task.emergency_cost || task.emergency_cost_if_delayed || task['Emergency Cost'] || 0;
 
@@ -750,6 +764,12 @@ const TaskItem = ({ task, onUpdate, onDelete, onEdit }) => {
           <div className="task-detail-label">📅 Due Date</div>
           <div className="task-detail-value">{formatDate(dueDate)}</div>
         </div>
+        {status?.toLowerCase() === 'completed' && completedDate && (
+          <div className="task-detail">
+            <div className="task-detail-label">✅ Completed Date</div>
+            <div className="task-detail-value">{formatDate(completedDate)}</div>
+          </div>
+        )}
         <div className="task-detail">
           <div className="task-detail-label">💰 Est. Cost</div>
           <div className="task-detail-value">{formatCurrency(estimatedCost)}</div>
@@ -946,6 +966,7 @@ function App() {
   });
   const [activeModal, setActiveModal] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // API Functions
   const fetchStats = async () => {
@@ -1182,6 +1203,20 @@ function App() {
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
+            {/* Hamburger Menu & Navigation Tab */}
+            <div className="nav-toggle-container">
+              <button 
+                className={`nav-toggle ${sidebarOpen ? 'nav-toggle-active' : ''}`}
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                title="Toggle Navigation"
+              >
+                <Icons.Menu />
+              </button>
+              <div className="nav-tab">
+                Navigation
+              </div>
+            </div>
+            
             <div className="header-title">
               <div className="header-icon">
                 <Icons.HardHat />
@@ -1208,9 +1243,13 @@ function App() {
         </div>
       </header>
 
-      <LeftSidebar onMenuItemClick={handleMenuItemClick} />
+      <LeftSidebar 
+        onMenuItemClick={handleMenuItemClick} 
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      <main className="content-area">
+      <main className={`content-area ${sidebarOpen ? 'content-with-sidebar' : 'content-no-sidebar'}`}>
         {error && (
           <div className="error fadeIn">
             <strong>⚠️ Error:</strong> {error}

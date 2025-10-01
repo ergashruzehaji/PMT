@@ -1,14 +1,37 @@
-# 🚀 Railway Deployment Guide
+# 🚀 Railway Deployment Guide - Property Maintenance Tracker
 
-## Project Structure
+## APIs Used in This Application
 
-This repository contains:
-- **Backend API** (Python FastAPI) - Root directory
-- **Frontend** (React) - `frontend/` directory
+### 1. **FastAPI Backend API**
+- **Purpose**: Main REST API server for the Property Maintenance Tracker
+- **Port**: 8000 (configurable via PORT environment variable)
+- **Endpoints**:
+  - `GET /` - Health check
+  - `POST /api/tasks` - Create new maintenance task
+  - `GET /api/tasks` - Get all tasks
+  - `PUT /api/tasks/{task_id}` - Update task
+  - `DELETE /api/tasks/{task_id}` - Delete task
 
-Railway will automatically deploy the Python API from the root directory.
+### 2. **Google Sheets API**
+- **Purpose**: Data storage and synchronization
+- **Library**: gspread with oauth2client
+- **Spreadsheet**: "Property Management Tracker"
+- **Authentication**: Service Account JSON credentials
 
-## Quick Deploy to Railway
+### 3. **Railway Platform API**
+- **Purpose**: Cloud deployment and hosting
+- **Domain**: `*.up.railway.app`
+
+## FIXED ISSUES ✅
+
+1. **Duplicate Import Error** - Removed duplicate maintenance_tracker import in api_server.py
+2. **Duplicate Main Block** - Fixed main.py to have single entry point
+3. **CORS Configuration** - Added Railway URLs to CORS allow list
+4. **Port Configuration** - Fixed port handling for Railway environment
+5. **Path Issues** - Fixed hardcoded local paths to use relative paths
+6. **Frontend Configuration** - Updated config.js to auto-detect production vs development
+
+## Quick Railway Deployment
 
 ### Step 1: Deploy from GitHub
 

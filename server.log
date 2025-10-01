@@ -1,0 +1,13 @@
+INFO:     Started server process [16395]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+🔍 Initializing tracker...
+📊 Spreadsheet name: Property Management Tracker
+🔑 Google credentials available: False
+🔄 No environment credentials, trying local file...
+📁 Checking local credentials at: /Users/eruzehaji/Desktop/PMT/credentials.json
+📄 Local credentials file found, initializing tracker...
+✅ Tracker initialized successfully with local credentials!
+INFO:     127.0.0.1:52241 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52247 - "POST /api/tasks HTTP/1.1" 200 OK
