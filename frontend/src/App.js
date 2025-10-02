@@ -993,6 +993,48 @@ function App() {
     return [];
   };
 
+  // Normalize task data from Railway API to ensure compatibility
+  const normalizeTasks = (rawTasks) => {
+    return rawTasks.map((task, index) => ({
+      // Ensure ID exists for React components
+      id: task.id || `task_${index + 2}`, // Start from 2 to match sheet rows
+      row_number: task.row_number || index + 2,
+      
+      // Normalize property names (support both old and new formats)
+      property_name: task.property_name || task['Property Address'] || task.property_address || '',
+      property_address: task.property_address || task['Property Address'] || task.property_name || '',
+      
+      // Normalize task description
+      task_description: task.task_description || task['Task Description'] || task.task_name || '',
+      task_name: task.task_name || task['Task Description'] || task.task_description || '',
+      
+      // Other fields with fallbacks
+      category: task.category || task['Category'] || 'General',
+      priority: task.priority || task['Priority'] || 'Medium',
+      status: task.status || task['Status'] || 'Pending',
+      due_date: task.due_date || task['Due Date'] || '',
+      completed_date: task.completed_date || task['Completed Date'] || '',
+      estimated_cost: parseFloat(task.estimated_cost || task['Estimated Cost'] || 0),
+      emergency_cost: parseFloat(task.emergency_cost || task['Emergency Cost'] || 0),
+      notes: task.notes || task['Notes'] || task.description || '',
+      reporter_email: task.reporter_email || task['Reporter Email'] || '',
+      created_date: task.created_date || task['Date Created'] || '',
+      
+      // Keep original format for backward compatibility
+      'Property Address': task['Property Address'] || task.property_address || task.property_name || '',
+      'Task Description': task['Task Description'] || task.task_description || task.task_name || '',
+      'Category': task['Category'] || task.category || 'General',
+      'Priority': task['Priority'] || task.priority || 'Medium',
+      'Status': task['Status'] || task.status || 'Pending',
+      'Due Date': task['Due Date'] || task.due_date || '',
+      'Completed Date': task['Completed Date'] || task.completed_date || '',
+      'Estimated Cost': parseFloat(task['Estimated Cost'] || task.estimated_cost || 0),
+      'Emergency Cost': parseFloat(task['Emergency Cost'] || task.emergency_cost || 0),
+      'Notes': task['Notes'] || task.notes || task.description || '',
+      'Reporter Email': task['Reporter Email'] || task.reporter_email || ''
+    }));
+  };
+
   // API Functions
   const fetchStats = async () => {
     try {
@@ -1031,11 +1073,14 @@ function App() {
       if (!response.ok) throw new Error('Failed to fetch tasks');
       
       const data = await response.json();
-      const fetchedTasks = data.success ? data.tasks : data;
-      setTasks(fetchedTasks);
+      const rawTasks = data.success ? data.tasks : data;
+      
+      // Normalize task data for React app compatibility
+      const normalizedTasks = normalizeTasks(rawTasks);
+      setTasks(normalizedTasks);
       
       // Save to localStorage as backup
-      saveToLocalStorage(fetchedTasks);
+      saveToLocalStorage(normalizedTasks);
       
     } catch (err) {
       console.error('Error fetching tasks:', err);
@@ -1118,11 +1163,22 @@ function App() {
 
   const updateTask = async (taskId, updateData) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData)
-      });
+      // Try the new endpoint first, fall back to completion endpoint if needed
+      let response;
+      if (updateData.status === 'Completed') {
+        // Use the specific completion endpoint that exists on Railway
+        const taskRowNumber = parseInt(taskId.toString().replace('task_', '')) || taskId;
+        response = await fetch(`${API_BASE_URL}/api/tasks/${taskRowNumber}/complete`, {
+          method: 'PUT'
+        });
+      } else {
+        // Try the general update endpoint
+        response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData)
+        });
+      }
       
       if (!response.ok) throw new Error('Failed to update task');
       
@@ -1137,7 +1193,7 @@ function App() {
       // Fallback: Update task locally when API is not available
       setTasks(prevTasks => 
         prevTasks.map(task => 
-          task.id === taskId ? { ...task, ...updateData } : task
+          (task.id === taskId || task.row_number === taskId) ? { ...task, ...updateData } : task
         )
       );
       
@@ -1145,7 +1201,7 @@ function App() {
       if (updateData.status) {
         setStats(prevStats => {
           const updatedStats = { ...prevStats };
-          const task = tasks.find(t => t.id === taskId);
+          const task = tasks.find(t => t.id === taskId || t.row_number === taskId);
           
           if (task && task.status !== updateData.status) {
             // Adjust counts based on status change
