@@ -968,6 +968,31 @@ function App() {
   const [editingTask, setEditingTask] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Data persistence functions
+  const saveToLocalStorage = (tasks) => {
+    try {
+      localStorage.setItem('pmt_tasks_backup', JSON.stringify(tasks));
+      localStorage.setItem('pmt_last_sync', new Date().toISOString());
+    } catch (err) {
+      console.warn('Failed to save to localStorage:', err);
+    }
+  };
+
+  const loadFromLocalStorage = () => {
+    try {
+      const savedTasks = localStorage.getItem('pmt_tasks_backup');
+      if (savedTasks) {
+        const tasks = JSON.parse(savedTasks);
+        const lastSync = localStorage.getItem('pmt_last_sync');
+        console.log(`Restored ${tasks.length} tasks from backup (last sync: ${lastSync})`);
+        return tasks;
+      }
+    } catch (err) {
+      console.warn('Failed to load from localStorage:', err);
+    }
+    return [];
+  };
+
   // API Functions
   const fetchStats = async () => {
     try {
@@ -1006,13 +1031,25 @@ function App() {
       if (!response.ok) throw new Error('Failed to fetch tasks');
       
       const data = await response.json();
-      setTasks(data.success ? data.tasks : data);
+      const fetchedTasks = data.success ? data.tasks : data;
+      setTasks(fetchedTasks);
+      
+      // Save to localStorage as backup
+      saveToLocalStorage(fetchedTasks);
+      
     } catch (err) {
       console.error('Error fetching tasks:', err);
-      // Initialize with empty tasks when API fails
-      setTasks([]);
-      setError('API not available - tasks will be stored locally');
-      setTimeout(() => setError(null), 3000);
+      
+      // Try to restore from localStorage
+      const backupTasks = loadFromLocalStorage();
+      if (backupTasks.length > 0) {
+        setTasks(backupTasks);
+        setError(`API unavailable - restored ${backupTasks.length} tasks from backup`);
+      } else {
+        setTasks([]);
+        setError('API not available - tasks will be stored locally');
+      }
+      setTimeout(() => setError(null), 5000);
     }
   };
 
@@ -1044,7 +1081,8 @@ function App() {
       // Fallback: Add task locally when API is not available
       const newTask = {
         id: Date.now().toString(),
-        property_address: taskData.property_address || '',
+        property_name: taskData.property_name || '',
+        property_address: taskData.property_name || '',
         task_description: taskData.task_description || '',
         category: taskData.category || 'General',
         priority: taskData.priority || 'Medium',
@@ -1056,7 +1094,12 @@ function App() {
       };
       
       // Add to local task list
-      setTasks(prevTasks => [newTask, ...prevTasks]);
+      setTasks(prevTasks => {
+        const updatedTasks = [newTask, ...prevTasks];
+        // Save to localStorage as backup
+        localStorage.setItem('pmt_tasks_backup', JSON.stringify(updatedTasks));
+        return updatedTasks;
+      });
       
       // Update stats locally
       setStats(prevStats => ({

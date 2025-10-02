@@ -14,6 +14,17 @@ const POSSIBLE_URLS = [
 // For development, you can also use localhost
 const DEV_URL = 'http://localhost:8000';
 
-// Export the base URL - Always use Railway URL so you can see your live data
-export const API_BASE_URL = RAILWAY_URL;  // Always use Railway for live data
+// Auto-detect best API URL based on environment and availability
+const getApiUrl = () => {
+  // If running locally (localhost), prefer local API if available
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return DEV_URL;
+  }
+  
+  // Otherwise use Railway for production
+  return RAILWAY_URL;
+};
+
+// Export the base URL - Use smart detection for best sync experience
+export const API_BASE_URL = getApiUrl();
 
