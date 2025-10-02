@@ -2,7 +2,6 @@
   "name": "property-maintenance-tracker",
   "version": "1.0.0",
   "description": "Full-stack property maintenance tracking with Google Sheets integration",
-  "homepage": "https://ergashruzehaji.github.io/PMT",
   "main": "src/App.js",
   "scripts": {
     "start": "react-scripts start",
