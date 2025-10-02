@@ -17,6 +17,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000", 
         "http://localhost:5173",  # React dev servers
+        "https://ergashruzehaji.github.io",  # GitHub Pages
         "https://pmt-production-a984.up.railway.app",  # Current Railway URL
         "https://pmt-production-8f79794d.up.railway.app",
         "https://web-production-8f79794d.up.railway.app", 
