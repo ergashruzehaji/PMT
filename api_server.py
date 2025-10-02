@@ -9,7 +9,7 @@ import tempfile
 from maintenance_tracker import PropertyMaintenanceTracker
 
 # Initialize FastAPI app
-app = FastAPI(title="Property Maintenance Tracker API", version="2.1.1")
+app = FastAPI(title="Property Maintenance Tracker API", version="2.2.0")
 
 # Add CORS middleware to allow React frontend and Railway
 app.add_middleware(
@@ -162,7 +162,7 @@ tracker = initialize_tracker()
 
 @app.get("/")
 async def root():
-    return {"message": "Property Maintenance Tracker API", "status": "running"}
+    return {"message": "Property Maintenance Tracker API v2.2.0 - Stats Fixed", "status": "running"}
 
 @app.get("/api/version")
 async def get_api_version():
