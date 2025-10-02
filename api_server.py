@@ -164,6 +164,10 @@ tracker = initialize_tracker()
 async def root():
     return {"message": "Property Maintenance Tracker API", "status": "running"}
 
+@app.get("/api/version")
+async def get_api_version():
+    return {"version": "2.1.0", "message": "Updated API with sync fixes", "timestamp": "2025-10-01"}
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "tracker_available": tracker is not None}
