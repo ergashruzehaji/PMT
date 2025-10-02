@@ -489,8 +489,8 @@ class PropertyMaintenanceTracker:
             all_tasks = self.get_all_tasks()
             
             total_tasks = len(all_tasks)
-            pending_tasks = len([task for task in all_tasks if task.get('Status', '').lower() == 'pending'])
-            completed_tasks = len([task for task in all_tasks if task.get('Status', '').lower() == 'completed'])
+            pending_tasks = len([task for task in all_tasks if task.get('status', '').lower() == 'pending'])
+            completed_tasks = len([task for task in all_tasks if task.get('status', '').lower() == 'completed'])
             
             # Calculate overdue tasks
             from datetime import datetime
@@ -498,8 +498,8 @@ class PropertyMaintenanceTracker:
             overdue_count = 0
             
             for task in all_tasks:
-                if task.get('Status', '').lower() != 'completed':
-                    due_date_str = task.get('Due Date', '')
+                if task.get('status', '').lower() != 'completed':
+                    due_date_str = task.get('due_date', '')
                     if due_date_str:
                         try:
                             # Handle MM-DD-YYYY format
@@ -520,14 +520,14 @@ class PropertyMaintenanceTracker:
             emergency_cost_averted = 0
             
             for task in all_tasks:
-                estimated_cost = task.get('Estimated Cost', 0)
+                estimated_cost = task.get('estimated_cost', 0)
                 if isinstance(estimated_cost, str):
                     try:
                         estimated_cost = float(estimated_cost)
                     except (ValueError, TypeError):
                         estimated_cost = 0
                 
-                if task.get('Status', '').lower() == 'completed':
+                if task.get('status', '').lower() == 'completed':
                     preventive_cost += estimated_cost
                     # Assume 6x cost multiplier for emergency repairs
                     emergency_cost_averted += estimated_cost * 6
