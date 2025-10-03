@@ -6,10 +6,10 @@ import uvicorn
 import os
 import json
 import tempfile
-from maintenance_tracker import PropertyMaintenanceTracker
+from management_tracker import PropertyManagementTracker
 
 # Initialize FastAPI app
-app = FastAPI(title="Property Maintenance Tracker API", version="3.0.0-FORCE-DEPLOY")
+app = FastAPI(title="Property Management Tracker API", version="3.0.0-FORCE-DEPLOY")
 
 # Add CORS middleware to allow React frontend and Railway
 app.add_middleware(
@@ -122,7 +122,7 @@ def initialize_tracker():
                 
                 print(f"📁 Temp credentials file created: {temp_creds_path}")
                 
-                tracker = PropertyMaintenanceTracker(temp_creds_path, spreadsheet_name)
+                tracker = PropertyManagementTracker(temp_creds_path, spreadsheet_name)
                 print("✅ Tracker initialized successfully with environment credentials")
                 
                 # Clean up temporary file
@@ -144,7 +144,7 @@ def initialize_tracker():
             if os.path.exists(local_creds_path):
                 print("📄 Local credentials file found, initializing tracker...")
                 try:
-                    tracker = PropertyMaintenanceTracker(local_creds_path, spreadsheet_name)
+                    tracker = PropertyManagementTracker(local_creds_path, spreadsheet_name)
                     print("✅ Tracker initialized successfully with local credentials!")
                     return tracker
                 except Exception as e:
@@ -163,7 +163,7 @@ tracker = initialize_tracker()
 
 @app.get("/")
 async def root():
-    return {"message": "Property Maintenance Tracker API v2.2.0 - Stats Fixed", "status": "running"}
+    return {"message": "Property Management Tracker API v2.2.0 - Stats Fixed", "status": "running"}
 
 @app.get("/api/version")
 async def get_api_version():
@@ -499,7 +499,7 @@ async def get_dashboard_stats():
             raise HTTPException(status_code=500, detail=str(e2))
 
 if __name__ == "__main__":
-    print("🚀 Starting Property Maintenance Tracker API...")
+    print("🚀 Starting Property Management Tracker API...")
     print("📍 API will be available at: http://localhost:8000")
     print("📚 API documentation at: http://localhost:8000/docs")
     print("⚠️  Note: Some features require Google Sheets credentials")
